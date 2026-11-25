@@ -12,7 +12,7 @@ def crear_pose(valores):
     return gtsam.Pose3(rotacion, np.array([x, y, z]))
 
 
-def crear_grafo(poses, edges):
+def crear_grafo(poses, aristas):
     graph = gtsam.NonlinearFactorGraph()
     initial = gtsam.Values()
 
@@ -23,14 +23,14 @@ def crear_grafo(poses, edges):
     prior_noise = gtsam.noiseModel.Diagonal.Sigmas(np.array([1e-4, 1e-4, 1e-4, 1e-3, 1e-3, 1e-3]))
     graph.add(gtsam.PriorFactorPose3(pid0, initial.atPose3(pid0), prior_noise))
 
-    for edge in edges:
-        i, j = int(edge[0]), int(edge[1])
-        informacion = matriz_info(edge[9:30])
+    for arista in aristas:
+        i, j = int(arista[0]), int(arista[1])
+        informacion = matriz_info(arista[9:30])
         # GTSAM usa rotación antes que traslación.
         orden = [3, 4, 5, 0, 1, 2]
         informacion = informacion[np.ix_(orden, orden)]
         noise = gtsam.noiseModel.Gaussian.Information(informacion)
-        graph.add(gtsam.BetweenFactorPose3(i, j, crear_pose(edge[2:9]), noise))
+        graph.add(gtsam.BetweenFactorPose3(i, j, crear_pose(arista[2:9]), noise))
 
     return graph, initial
 
@@ -66,7 +66,7 @@ def graficar(poses, resultado, salida="resultados/ejercicio_3_2.png"):
 
 
 if __name__ == "__main__":
-    poses, edges = leer_g2o("parking-garage.g2o")
-    graph, initial = crear_grafo(poses, edges)
+    poses, aristas = leer_g2o("parking-garage.g2o")
+    graph, initial = crear_grafo(poses, aristas)
     resultado = optimizar_gauss_newton(graph, initial)
     graficar(poses, resultado)

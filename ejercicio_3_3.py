@@ -1,7 +1,7 @@
 import gtsam
 import numpy as np
 from read_file3d import leer_g2o, matriz_info
-from ejercicio_3_2 import graficar, crear_pose
+from batch_solution3d import graficar, crear_pose
 
 
 def incremental(poses, edges):

@@ -14,7 +14,7 @@ def matriz_info(q):
 
 def leer_g2o(path):
     poses = []
-    edges = []
+    aristas = []
 
     with open(path, "r") as archivo:
         for linea in archivo:
@@ -28,6 +28,6 @@ def leer_g2o(path):
                 poses.append(valores)
             elif tipo == "EDGE_SE3:QUAT":
                 valores = list(map(float, campos[1:31]))
-                edges.append(valores)
+                aristas.append(valores)
 
-    return np.array(poses), np.array(edges)
+    return np.array(poses), np.array(aristas)
