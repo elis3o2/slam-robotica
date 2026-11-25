@@ -1,40 +1,28 @@
 # Graph SLAM
 
-Activar el entorno existente:
+Desde la raíz del proyecto, activá el entorno e instalá las dependencias si hace falta:
 
 ```bash
+python3 -m venv env
 source env/bin/activate
-```
-
-Si se necesita instalar las dependencias:
-
-```bash
 pip install -r requirements.txt
+mkdir -p resultados
 ```
 
-Ejecutar desde esta carpeta:
+Ejecutá cada solución con:
 
 ```bash
-python ejercicio_2_1.py
-python ejercicio_2_2.py
-python ejercicio_2_3.py
-python ejercicio_3_1.py
-python ejercicio_3_2.py
-python ejercicio_3_3.py
+python batch_solution2d.py
+python incremental_solution2d.py
+python batch_solution3d.py
+python incremental_solution3d.py
 ```
 
-Los ejercicios 2.1 y 3.1 usan los lectores `read_file2d.py` y `read_file3d.py`.
-Los ejercicios 2.2 y 3.2 construyen el grafo completo y usan Gauss-Newton.
-Los ejercicios 2.3 y 3.3 incorporan las poses y aristas con ISAM2.
-Los gráficos se guardan en `resultados/`.
+Para correr las soluciones **batch** con perturbación de las poses iniciales, agregá `--perturbar`:
 
-Se usan directamente las poses y mediciones de los archivos, sin perturbación.
-La primera pose se ancla con un prior. En 3D se cambia el orden del cuaternión
-y de la matriz de información para GTSAM.
+```bash
+python batch_solution2d.py --perturbar
+python batch_solution3d.py --perturbar
+```
 
-La versión incremental está escrita para los datasets de esta práctica:
-identificadores consecutivos desde 0 y aristas con origen menor que destino.
-La pose nueva se inicializa componiendo una pose ya optimizada con su medición.
-
-En Intel se hacen diez iteraciones explícitas porque el error puede subir en la
-primera y bajar después. El informe LaTeX/LyX de la consigna no está incluido.
+Las soluciones incrementales se ejecutan sin perturbación. Los datos se leen de `data/` y los gráficos se guardan en `resultados/`; las corridas batch con perturbación generan archivos con el sufijo `_perturbado`.

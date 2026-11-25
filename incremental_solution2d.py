@@ -1,8 +1,10 @@
 import gtsam
 import numpy as np
-import matplotlib.pyplot as plt
 from read_file2d import leer_g2o, matriz_info
+from graficos import graficar_2d
 
+DATA = "data/input_INTEL_g2o.g2o"
+SALIDA = "resultados/incremental2d.png"
 
 def incremental(poses, edges):
     params = gtsam.ISAM2Params()
@@ -23,7 +25,8 @@ def incremental(poses, edges):
             arista_anterior = next(edge for edge in edges if int(edge[1]) == pid and int(edge[0]) < pid)
             pose_anterior = resultado.atPose2(int(arista_anterior[0]))
             medicion = gtsam.Pose2(*arista_anterior[2:5])
-            initial.insert(pid, pose_anterior.compose(medicion))
+            pose = pose_anterior.compose(medicion)
+            initial.insert(pid, pose)
 
         for edge in edges:
             i, j = int(edge[0]), int(edge[1])
@@ -34,22 +37,19 @@ def incremental(poses, edges):
 
         isam.update(graph, initial)
         resultado = isam.calculateEstimate()
+        error = isam.getFactorsUnsafe().error(resultado)
+        print(f"Pose {pid}: error acumulado = {error}")
 
     return resultado
 
 
 def main():
-    poses, edges = leer_g2o("input_INTEL_g2o.g2o")
+    poses, edges = leer_g2o(DATA)
     resultado = incremental(poses, edges)
-    print("Poses optimizadas:", resultado.size())
-    puntos = np.array([resultado.atPose2(int(p[0])).translation() for p in poses])
-    plt.plot(poses[:, 1], poses[:, 2], label="Inicial")
-    plt.plot(puntos[:, 0], puntos[:, 1], label="Optimizada")
-    plt.axis("equal")
-    plt.legend()
-    plt.savefig("ejercicio_2_3.png")
-    plt.show()
+    graficar_2d(poses, resultado, SALIDA)
 
 
 if __name__ == "__main__":
     main()
+
+

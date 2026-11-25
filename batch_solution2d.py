@@ -1,8 +1,12 @@
 import gtsam
-import matplotlib.pyplot as plt
 import numpy as np
+import argparse
 from read_file2d import leer_g2o, matriz_info
+from graficos import graficar_2d
 
+DATA = "data/input_INTEL_g2o.g2o"
+SALIDA = "resultados/batch2d.png"
+SALIDA_PERTURBADA = "resultados/batch2d_perturbado.png"
 
 def crear_grafo(poses, aristas):
     graph = gtsam.NonlinearFactorGraph()
@@ -45,7 +49,7 @@ def perturbar(initial, primer_id, desviacion=0.1):
     return perturbado
 
 
-def gauss_newton(graph, initial, iteraciones=10, min_error=1e-3):
+def gauss_newton(graph, initial, iteraciones=100, min_error=1e-3):
     params = gtsam.GaussNewtonParams()
     params.setLinearSolverType("MULTIFRONTAL_QR")
     optimizer = gtsam.GaussNewtonOptimizer(graph, initial, params)
@@ -64,29 +68,22 @@ def gauss_newton(graph, initial, iteraciones=10, min_error=1e-3):
     return optimizer.values()
 
 
-def graficar(poses, resultado):
-    puntos = np.array([resultado.atPose2(int(p[0])).translation() for p in poses])
-    plt.figure(figsize=(8, 7))
-    plt.plot(poses[:, 1], poses[:, 2], label="Inicial")
-    plt.plot(puntos[:, 0], puntos[:, 1], label="Optimizada")
-    plt.axis("equal")
-    plt.xlabel("X")
-    plt.ylabel("Y")
-    plt.legend()
-    plt.grid()
-    plt.tight_layout()
-    plt.savefig("ejercicio_2_2.png")
-    plt.show()
-    plt.close()
-
-
-
 def main():
-    poses, aristas = leer_g2o("input_INTEL_g2o.g2o")
+    parser = argparse.ArgumentParser(description="SLAM 2D por lotes")
+    parser.add_argument("--perturbar", action="store_true", help="Perturbar las poses iniciales")
+    args = parser.parse_args()
+
+    poses, aristas = leer_g2o(DATA)
 
     graph, initial = crear_grafo(poses, aristas)
 
-    initial = perturbar(initial, int(poses[0, 0]))
-    resultado = gauss_newton(graph, initial, min_error=110)
+    if args.perturbar:
+        initial = perturbar(initial, int(poses[0, 0]))
+    resultado = gauss_newton(graph, initial)
 
-    graficar(poses, resultado)
+    salida = SALIDA_PERTURBADA if args.perturbar else SALIDA
+    graficar_2d(poses, resultado, salida, inicial=initial)
+
+
+if __name__ == "__main__":
+    main()
