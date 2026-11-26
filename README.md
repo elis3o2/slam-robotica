@@ -24,4 +24,4 @@ python batch_solution2d.py --perturbar
 python batch_solution3d.py --perturbar
 ```
 
-Las soluciones incrementales se ejecutan sin perturbación. Los datos se leen de `data/` y los gráficos se guardan en `resultados/`; las corridas batch con perturbación generan archivos con el sufijo `_perturbado`.
+Los datos se leen de `data/` y los gráficos se guardan en `resultados/`; las corridas batch con perturbación generan archivos con el sufijo `_perturbado`.
