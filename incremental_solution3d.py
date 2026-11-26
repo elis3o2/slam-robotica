@@ -1,11 +1,17 @@
 import gtsam
 import numpy as np
 from read_file3d import leer_g2o, matriz_info
-from batch_solution3d import crear_pose
 from graficos import graficar_3d
 
 DATA = "data/parking-garage.g2o"
 SALIDA = "resultados/incremental3d.png"
+
+def crear_pose(valores):
+    x, y, z, qx, qy, qz, qw = valores
+    q = np.array([qw, qx, qy, qz])
+    q = q / np.linalg.norm(q)
+    rotacion = gtsam.Rot3.Quaternion(*q)
+    return gtsam.Pose3(rotacion, np.array([x, y, z]))
 
 
 def incremental(poses, edges):
